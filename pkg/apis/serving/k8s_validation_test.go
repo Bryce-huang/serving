@@ -2196,7 +2196,8 @@ func TestSidecarContainerValidation(t *testing.T) {
 				TerminationGracePeriodSeconds: ptr.Int64(10),
 			},
 		},
-		want: apis.ErrDisallowedFields("livenessProbe", "readinessProbe", "readinessProbe.failureThreshold", "readinessProbe.periodSeconds", "readinessProbe.successThreshold", "readinessProbe.timeoutSeconds"),
+		want: apis.ErrDisallowedFields("livenessProbe", "readinessProbe", "readinessProbe.failureThreshold", "readinessProbe.periodSeconds", "readinessProbe.successThreshold", "readinessProbe.timeoutSeconds",
+			"startupProbe", "startupProbe.failureThreshold", "startupProbe.periodSeconds", "startupProbe.successThreshold", "startupProbe.terminationGracePeriodSeconds", "startupProbe.timeoutSeconds"),
 	}, {
 		name: "invalid probes (no port defined)",
 		c: corev1.Container{
@@ -2262,7 +2263,7 @@ func TestSidecarContainerValidation(t *testing.T) {
 				TerminationGracePeriodSeconds: ptr.Int64(10),
 			},
 		},
-		want: nil,
+		want: apis.ErrDisallowedFields("startupProbe", "startupProbe.failureThreshold", "startupProbe.periodSeconds", "startupProbe.successThreshold", "startupProbe.terminationGracePeriodSeconds", "startupProbe.timeoutSeconds"),
 	}, {
 		name: "valid with startup probe and multi container probing",
 		c: corev1.Container{
@@ -2275,6 +2276,7 @@ func TestSidecarContainerValidation(t *testing.T) {
 				ProbeHandler: corev1.ProbeHandler{
 					HTTPGet: &corev1.HTTPGetAction{
 						Path: "/",
+						Port: intstr.FromInt32(5000),
 					},
 				},
 				TerminationGracePeriodSeconds: ptr.Int64(10),

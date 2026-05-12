@@ -556,11 +556,17 @@ func validateSidecarContainer(ctx context.Context, container corev1.Container, v
 			errs = errs.Also(apis.CheckDisallowedFields(*container.ReadinessProbe,
 				*ProbeMask(&corev1.Probe{})).ViaField("readinessProbe"))
 		}
+		if container.StartupProbe != nil {
+			errs = errs.Also(apis.CheckDisallowedFields(*container.StartupProbe,
+				*ProbeMask(&corev1.Probe{})).ViaField("startupProbe"))
+		}
 	} else if cfg.Features.MultiContainerProbing == config.Enabled {
 		// Liveness Probes
 		errs = errs.Also(validateProbe(container.LivenessProbe, nil, false).ViaField("livenessProbe"))
 		// Readiness Probes
 		errs = errs.Also(validateReadinessProbe(container.ReadinessProbe, nil, false).ViaField("readinessProbe"))
+		// Startup Probes
+		errs = errs.Also(validateProbe(container.StartupProbe, nil, false).ViaField("startupProbe"))
 	}
 
 	return errs.Also(validate(ctx, container, volumes))
@@ -602,6 +608,8 @@ func ValidateUserContainer(ctx context.Context, container corev1.Container, volu
 	errs = errs.Also(validateProbe(container.LivenessProbe, &port, true).ViaField("livenessProbe"))
 	// Readiness Probes
 	errs = errs.Also(validateReadinessProbe(container.ReadinessProbe, &port, true).ViaField("readinessProbe"))
+	// Startup Probes
+	errs = errs.Also(validateProbe(container.StartupProbe, &port, true).ViaField("startupProbe"))
 	return errs.Also(validate(ctx, container, volumes))
 }
 
